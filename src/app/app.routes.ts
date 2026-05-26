@@ -3,7 +3,15 @@ import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/games', pathMatch: 'full' },
+  { path: '', redirectTo: '/inscricao', pathMatch: 'full' },
+  {
+    path: 'inscricao',
+    loadComponent: () => import('./public/public-game/public-game.component').then(m => m.PublicGameComponent)
+  },
+  {
+    path: 'inscricao/:id',
+    loadComponent: () => import('./public/public-game/public-game.component').then(m => m.PublicGameComponent)
+  },
   {
     path: 'login',
     loadComponent: () => import('./auth/login/login.component').then(m => m.LoginComponent)
