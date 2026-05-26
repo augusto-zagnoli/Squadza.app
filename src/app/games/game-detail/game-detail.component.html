@@ -1,0 +1,195 @@
+<div class="container py-4">
+  @if (loading) {
+    <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+  } @else if (!game) {
+    <div class="alert alert-danger">Jogo não encontrado.</div>
+  } @else {
+
+    <!-- Header -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+          <div>
+            <h3 class="mb-1">
+              <i class="bi bi-calendar3 me-2 text-primary"></i>
+              {{ game.gameDate | date:'dd/MM/yyyy' }}
+            </h3>
+            <p class="text-muted mb-1"><i class="bi bi-clock me-1"></i>{{ game.gameTime }}</p>
+            <p class="text-muted mb-1"><i class="bi bi-geo-alt me-1"></i>{{ game.location }}</p>
+            <p class="text-muted mb-0"><i class="bi bi-currency-dollar me-1"></i>R$ {{ game.pricePerPerson | number:'1.2-2' }} por pessoa</p>
+          </div>
+          <div class="text-end">
+            <span class="badge bg-{{ statusBadge(game.status) }} fs-6 mb-2">{{ statusLabel(game.status) }}</span>
+            <div class="fs-5 fw-bold text-success">{{ game.confirmedCount }}/{{ game.maxPlayers }}</div>
+            <div class="text-muted small">confirmados</div>
+            @if (game.waitingCount > 0) {
+              <div class="text-warning small">{{ game.waitingCount }} na espera</div>
+            }
+          </div>
+        </div>
+
+        @if (actionMsg) { <div class="alert alert-success py-2 mt-3 mb-0">{{ actionMsg }}</div> }
+        @if (actionError) { <div class="alert alert-danger py-2 mt-3 mb-0">{{ actionError }}</div> }
+
+        <!-- Actions for current user -->
+        @if (auth.isLoggedIn()) {
+          <div class="mt-3 d-flex gap-2 flex-wrap">
+            @if (!myParticipation) {
+              @if (game.status === 'Open' || game.status === 'Full') {
+                <button class="btn btn-success" (click)="join()">
+                  <i class="bi bi-plus-circle me-1"></i>
+                  {{ game.status === 'Full' ? 'Entrar na Lista de Espera' : 'Entrar na Lista' }}
+                </button>
+              }
+            } @else {
+              <button class="btn btn-outline-danger" (click)="leave()">
+                <i class="bi bi-x-circle me-1"></i>Cancelar Inscrição
+              </button>
+              @if (myParticipation.status === 'Confirmed') {
+                <span class="badge bg-success align-self-center">Posição {{ myParticipation.position }}</span>
+              } @else {
+                <span class="badge bg-warning align-self-center">Espera #{{ myParticipation.position }}</span>
+              }
+            }
+            @if (auth.isAdmin()) {
+              <button class="btn btn-primary ms-auto" (click)="drawTeams()" [disabled]="drawing">
+                @if (drawing) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                <i class="bi bi-shuffle me-1"></i>Sortear Times
+              </button>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Payment Upload for logged user's entry -->
+    @if (myParticipation && myParticipation.status === 'Confirmed') {
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h6 class="card-title"><i class="bi bi-receipt me-2"></i>Meu Pagamento</h6>
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+            <span class="badge bg-{{ paymentBadge(myParticipation.paymentStatus) }} fs-6">
+              {{ paymentLabel(myParticipation.paymentStatus) }}
+            </span>
+            @if (myParticipation.rejectionReason) {
+              <span class="text-danger small"><i class="bi bi-exclamation-circle me-1"></i>{{ myParticipation.rejectionReason }}</span>
+            }
+            @if (myParticipation.paymentStatus !== 'Confirmed') {
+              <label class="btn btn-outline-primary btn-sm mb-0" [class.disabled]="uploading">
+                @if (uploading) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                <i class="bi bi-upload me-1"></i>Enviar Comprovante
+                <input type="file" hidden accept="image/*,.pdf" (change)="onFileSelected($event, myParticipation.id)">
+              </label>
+            }
+            @if (myParticipation.hasPaymentProof) {
+              <a [href]="'https://localhost:7131' + myParticipation.paymentProofUrl" target="_blank" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-eye me-1"></i>Ver Comprovante
+              </a>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="row g-4">
+      <!-- Confirmed List -->
+      <div class="col-lg-6">
+        <div class="card shadow-sm">
+          <div class="card-header bg-success text-white">
+            <h6 class="mb-0"><i class="bi bi-check-circle me-2"></i>Confirmados ({{ game.confirmedCount }}/{{ game.maxPlayers }})</h6>
+          </div>
+          <div class="card-body p-0">
+            @if (game.confirmed.length === 0) {
+              <p class="text-muted text-center py-3 mb-0">Nenhum confirmado ainda.</p>
+            }
+            <ul class="list-group list-group-flush">
+              @for (p of game.confirmed; track p.id) {
+                <li class="list-group-item d-flex align-items-center gap-2 py-2">
+                  <span class="badge bg-secondary rounded-pill" style="min-width:28px">{{ p.position }}</span>
+                  <span class="flex-fill fw-medium">{{ p.userName }}</span>
+                  <span class="badge bg-{{ paymentBadge(p.paymentStatus) }} small">
+                    {{ paymentLabel(p.paymentStatus) }}
+                  </span>
+                  @if (auth.isAdmin()) {
+                    <div class="d-flex gap-1">
+                      @if (p.hasPaymentProof) {
+                        <a [href]="'https://localhost:7131' + p.paymentProofUrl" target="_blank"
+                           class="btn btn-outline-secondary btn-sm" title="Ver comprovante">
+                          <i class="bi bi-receipt"></i>
+                        </a>
+                        @if (p.paymentStatus === 'Submitted') {
+                          <button class="btn btn-success btn-sm" (click)="reviewPayment(p.id, true)" title="Confirmar pagamento">
+                            <i class="bi bi-check"></i>
+                          </button>
+                          <button class="btn btn-danger btn-sm" (click)="reviewPayment(p.id, false, 'Comprovante inválido')" title="Rejeitar">
+                            <i class="bi bi-x"></i>
+                          </button>
+                        }
+                      }
+                      <button class="btn btn-outline-danger btn-sm" (click)="remove(p)" title="Remover">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  }
+                </li>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Waiting List -->
+      <div class="col-lg-6">
+        <div class="card shadow-sm">
+          <div class="card-header bg-warning">
+            <h6 class="mb-0"><i class="bi bi-hourglass-split me-2"></i>Lista de Espera ({{ game.waitingCount }})</h6>
+          </div>
+          <div class="card-body p-0">
+            @if (game.waiting.length === 0) {
+              <p class="text-muted text-center py-3 mb-0">Ninguém na lista de espera.</p>
+            }
+            <ul class="list-group list-group-flush">
+              @for (p of game.waiting; track p.id) {
+                <li class="list-group-item d-flex align-items-center gap-2 py-2">
+                  <span class="badge bg-warning text-dark rounded-pill" style="min-width:28px">{{ p.position }}</span>
+                  <span class="flex-fill">{{ p.userName }}</span>
+                  @if (auth.isAdmin()) {
+                    <button class="btn btn-outline-danger btn-sm" (click)="remove(p)" title="Remover">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  }
+                </li>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Teams -->
+    @if (game.teams.length > 0) {
+      <div class="mt-4">
+        <h4 class="mb-3"><i class="bi bi-people me-2"></i>Times Sorteados</h4>
+        <div class="row g-3">
+          @for (team of game.teams; track team.id; let i = $index) {
+            <div class="col-sm-6 col-xl-3">
+              <div class="card border-{{ teamColors[i % 4] }}">
+                <div class="card-header bg-{{ teamColors[i % 4] }} text-white fw-bold">
+                  {{ team.name }}
+                </div>
+                <ul class="list-group list-group-flush">
+                  @for (player of team.players; track player.userId) {
+                    <li class="list-group-item py-2">
+                      <i class="bi bi-person me-2"></i>{{ player.userName }}
+                    </li>
+                  }
+                </ul>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+  }
+</div>

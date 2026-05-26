@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Augusto Zagnoli\\\\Desktop\\\\Projects\\\\Augusto\\\\Squadza\\\\Squadza.app\" -Force)",
+      "Bash(Select-Object Name, PSIsContainer)",
+      "Bash(dotnet restore *)",
+      "Bash(dotnet build *)",
+      "Bash(dotnet ef *)",
+      "Bash(npm install *)",
+      "Bash(npx ng *)"
+    ]
+  }
+}
