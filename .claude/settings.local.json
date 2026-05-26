@@ -7,7 +7,8 @@
       "Bash(dotnet build *)",
       "Bash(dotnet ef *)",
       "Bash(npm install *)",
-      "Bash(npx ng *)"
+      "Bash(npx ng *)",
+      "Bash(Select-String -Pattern \"Error\")"
     ]
   }
 }
