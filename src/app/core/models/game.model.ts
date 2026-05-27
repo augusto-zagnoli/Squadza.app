@@ -45,6 +45,8 @@ export interface Game {
   confirmed: Participant[];
   waiting: Participant[];
   teams: Team[];
+  myStatus?: string | null;
+  myPosition?: number | null;
 }
 
 export interface CreateGameDto {

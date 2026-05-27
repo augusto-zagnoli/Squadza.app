@@ -42,6 +42,62 @@
       </div>
     </div>
 
+    <!-- Minha Inscrição (para todos os usuários logados) -->
+    @if (auth.isLoggedIn()) {
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h6 class="card-title mb-3">
+            <i class="bi bi-person-check me-2 text-primary"></i>Minha Inscrição
+          </h6>
+
+          @if (!game.myStatus) {
+            @if (canSignupForGame) {
+              <div class="d-flex align-items-center gap-3 flex-wrap">
+                <span class="text-muted small">
+                  <i class="bi bi-info-circle me-1"></i>
+                  Inscrevendo como <strong>{{ auth.currentUser()?.name }}</strong>
+                  @if (!auth.currentUser()?.cpfNormalized) {
+                    <span class="text-danger ms-2">(CPF não cadastrado)</span>
+                  }
+                </span>
+                <button class="btn btn-success" (click)="signupForGame()" [disabled]="signing || !auth.currentUser()?.cpfNormalized">
+                  @if (signing) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                  <i class="bi bi-plus-circle me-1"></i>
+                  {{ game.status === 'Full' ? 'Entrar na Fila de Espera' : 'Confirmar Presença' }}
+                </button>
+              </div>
+            } @else {
+              <p class="text-muted mb-0 small">
+                <i class="bi bi-lock me-1"></i>Este jogo não está aceitando inscrições.
+              </p>
+            }
+          } @else if (game.myStatus === 'Confirmed') {
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+              <div class="alert alert-success py-2 px-3 mb-0 flex-fill">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                Você está <strong>confirmado</strong> na posição <strong>{{ game.myPosition }}</strong>
+              </div>
+              <button class="btn btn-outline-danger" (click)="cancelMySignup()" [disabled]="cancelling">
+                @if (cancelling) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                <i class="bi bi-x-circle me-1"></i>Cancelar
+              </button>
+            </div>
+          } @else if (game.myStatus === 'Waiting') {
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+              <div class="alert alert-warning py-2 px-3 mb-0 flex-fill">
+                <i class="bi bi-hourglass-split me-2"></i>
+                Você está na <strong>fila de espera</strong> na posição <strong>{{ game.myPosition }}</strong>
+              </div>
+              <button class="btn btn-outline-danger" (click)="cancelMySignup()" [disabled]="cancelling">
+                @if (cancelling) { <span class="spinner-border spinner-border-sm me-1"></span> }
+                <i class="bi bi-x-circle me-1"></i>Sair da fila
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
     <div class="row g-4">
       <!-- Confirmed List -->
       <div class="col-lg-6">
@@ -55,9 +111,13 @@
             }
             <ul class="list-group list-group-flush">
               @for (p of game.confirmed; track p.id) {
-                <li class="list-group-item d-flex align-items-center gap-2 py-2">
+                <li class="list-group-item d-flex align-items-center gap-2 py-2"
+                    [class.list-group-item-success]="p.position === game.myPosition && game.myStatus === 'Confirmed'">
                   <span class="badge bg-secondary rounded-pill" style="min-width:28px">{{ p.position }}</span>
                   <span class="flex-fill fw-medium">{{ p.userName }}</span>
+                  @if (p.position === game.myPosition && game.myStatus === 'Confirmed') {
+                    <span class="badge bg-success-subtle text-success border border-success-subtle small">você</span>
+                  }
                   @if (auth.isAdmin()) {
                     <button class="btn btn-outline-danger btn-sm" (click)="remove(p)" title="Remover">
                       <i class="bi bi-trash"></i>
@@ -82,9 +142,13 @@
             }
             <ul class="list-group list-group-flush">
               @for (p of game.waiting; track p.id) {
-                <li class="list-group-item d-flex align-items-center gap-2 py-2">
+                <li class="list-group-item d-flex align-items-center gap-2 py-2"
+                    [class.list-group-item-warning]="p.position === game.myPosition && game.myStatus === 'Waiting'">
                   <span class="badge bg-warning text-dark rounded-pill" style="min-width:28px">{{ p.position }}</span>
                   <span class="flex-fill">{{ p.userName }}</span>
+                  @if (p.position === game.myPosition && game.myStatus === 'Waiting') {
+                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle small">você</span>
+                  }
                   @if (auth.isAdmin()) {
                     <button class="btn btn-outline-danger btn-sm" (click)="remove(p)" title="Remover">
                       <i class="bi bi-trash"></i>

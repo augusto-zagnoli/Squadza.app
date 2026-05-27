@@ -24,14 +24,12 @@ export class GameService {
     return this.http.put(`${API_URL}/games/${id}/status`, { status });
   }
 
-  join(gameId: number) {
-    return this.http.post<{ message: string; participantId: number }>(
-      `${API_URL}/participants/join/${gameId}`, {}
-    );
+  signupPublic(gameId: number, name: string, cpf: string) {
+    return this.http.post(`${API_URL}/public/games/${gameId}/signup`, { name, cpf });
   }
 
-  leave(gameId: number) {
-    return this.http.delete<{ message: string }>(`${API_URL}/participants/leave/${gameId}`);
+  cancelPublic(gameId: number, cpf: string) {
+    return this.http.delete(`${API_URL}/public/games/${gameId}/signup`, { body: { cpf } });
   }
 
   removeParticipant(signupId: number, gameId: number) {
