@@ -1,0 +1,98 @@
+<!-- Overlay mobile -->
+@if (!collapsed()) {
+  <div class="sidebar-overlay d-lg-none" (click)="close()"></div>
+}
+
+<!-- Toggle mobile -->
+<button class="sidebar-toggle d-lg-none btn btn-primary" (click)="toggle()" aria-label="Menu">
+  <i class="bi bi-{{ collapsed() ? 'list' : 'x-lg' }}"></i>
+</button>
+
+<!-- Sidebar -->
+<nav class="sidebar" [class.collapsed]="collapsed()">
+
+  <!-- Brand -->
+  <div class="sidebar-brand">
+    <i class="bi bi-volleyball"></i>
+    <span>Squadza</span>
+  </div>
+
+  <!-- Nav -->
+  <div class="sidebar-nav">
+
+    <!-- Seção pública -->
+    <p class="sidebar-section-label">Geral</p>
+    <a routerLink="/inscricao" routerLinkActive="active"
+       [routerLinkActiveOptions]="{exact: false}" class="sidebar-link" (click)="close()">
+      <i class="bi bi-list-check"></i>
+      <span>Inscrições</span>
+    </a>
+
+    <!-- Seção usuário logado -->
+    @if (auth.isLoggedIn()) {
+      <p class="sidebar-section-label mt-3">Minha área</p>
+      <a routerLink="/games" routerLinkActive="active"
+         [routerLinkActiveOptions]="{exact: false}" class="sidebar-link" (click)="close()">
+        <i class="bi bi-calendar-event"></i>
+        <span>Jogos</span>
+      </a>
+      <a routerLink="/history" routerLinkActive="active" class="sidebar-link" (click)="close()">
+        <i class="bi bi-clock-history"></i>
+        <span>Meu Histórico</span>
+      </a>
+    }
+
+    <!-- Seção admin -->
+    @if (auth.isAdmin()) {
+      <p class="sidebar-section-label mt-3">
+        <i class="bi bi-shield-check me-1"></i>Administração
+      </p>
+      <a routerLink="/admin" routerLinkActive="active"
+         [routerLinkActiveOptions]="{exact: true}" class="sidebar-link" (click)="close()">
+        <i class="bi bi-grid-1x2"></i>
+        <span>Painel Admin</span>
+      </a>
+      <a routerLink="/admin/create-game" routerLinkActive="active" class="sidebar-link" (click)="close()">
+        <i class="bi bi-plus-circle"></i>
+        <span>Novo Jogo</span>
+      </a>
+    }
+
+  </div>
+
+  <!-- Footer -->
+  <div class="sidebar-footer">
+    @if (auth.isLoggedIn()) {
+      <div class="sidebar-user">
+        <div class="sidebar-avatar">
+          {{ (auth.currentUser()?.name ?? 'U')[0].toUpperCase() }}
+        </div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">{{ auth.currentUser()?.name }}</div>
+          <div class="sidebar-user-role">
+            @if (auth.isAdmin()) {
+              <span class="badge bg-warning text-dark">Admin</span>
+            } @else {
+              <span class="badge bg-secondary">Usuário</span>
+            }
+          </div>
+        </div>
+      </div>
+      <button class="sidebar-link sidebar-logout w-100 text-start border-0 bg-transparent"
+              (click)="logout()">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Sair</span>
+      </button>
+    } @else {
+      <a routerLink="/login" class="sidebar-link" (click)="close()">
+        <i class="bi bi-box-arrow-in-right"></i>
+        <span>Entrar</span>
+      </a>
+      <a routerLink="/register" class="sidebar-link sidebar-link-outline" (click)="close()">
+        <i class="bi bi-person-plus"></i>
+        <span>Cadastrar</span>
+      </a>
+    }
+  </div>
+
+</nav>

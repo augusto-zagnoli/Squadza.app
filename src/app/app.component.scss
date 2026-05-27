@@ -1,0 +1,9 @@
+.app-content {
+  @media (min-width: 992px) {
+    margin-left: 240px;
+  }
+
+  @media (max-width: 991px) {
+    padding-top: 60px;
+  }
+}
