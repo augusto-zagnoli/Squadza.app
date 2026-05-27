@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { GameService } from '../../core/services/game.service';
 import { HistoryItem } from '../../core/models/user.model';
 
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './history.component.html',
   styleUrl: './history.component.scss'
 })

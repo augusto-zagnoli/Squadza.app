@@ -31,65 +31,16 @@
         @if (actionMsg) { <div class="alert alert-success py-2 mt-3 mb-0">{{ actionMsg }}</div> }
         @if (actionError) { <div class="alert alert-danger py-2 mt-3 mb-0">{{ actionError }}</div> }
 
-        <!-- Actions for current user -->
-        @if (auth.isLoggedIn()) {
-          <div class="mt-3 d-flex gap-2 flex-wrap">
-            @if (!myParticipation) {
-              @if (game.status === 'Open' || game.status === 'Full') {
-                <button class="btn btn-success" (click)="join()">
-                  <i class="bi bi-plus-circle me-1"></i>
-                  {{ game.status === 'Full' ? 'Entrar na Lista de Espera' : 'Entrar na Lista' }}
-                </button>
-              }
-            } @else {
-              <button class="btn btn-outline-danger" (click)="leave()">
-                <i class="bi bi-x-circle me-1"></i>Cancelar Inscrição
-              </button>
-              @if (myParticipation.status === 'Confirmed') {
-                <span class="badge bg-success align-self-center">Posição {{ myParticipation.position }}</span>
-              } @else {
-                <span class="badge bg-warning align-self-center">Espera #{{ myParticipation.position }}</span>
-              }
-            }
-            @if (auth.isAdmin()) {
-              <button class="btn btn-primary ms-auto" (click)="drawTeams()" [disabled]="drawing">
-                @if (drawing) { <span class="spinner-border spinner-border-sm me-1"></span> }
-                <i class="bi bi-shuffle me-1"></i>Sortear Times
-              </button>
-            }
+        @if (auth.isAdmin()) {
+          <div class="mt-3">
+            <button class="btn btn-primary" (click)="drawTeams()" [disabled]="drawing">
+              @if (drawing) { <span class="spinner-border spinner-border-sm me-1"></span> }
+              <i class="bi bi-shuffle me-1"></i>Sortear Times
+            </button>
           </div>
         }
       </div>
     </div>
-
-    <!-- Payment Upload for logged user's entry -->
-    @if (myParticipation && myParticipation.status === 'Confirmed') {
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <h6 class="card-title"><i class="bi bi-receipt me-2"></i>Meu Pagamento</h6>
-          <div class="d-flex align-items-center gap-3 flex-wrap">
-            <span class="badge bg-{{ paymentBadge(myParticipation.paymentStatus) }} fs-6">
-              {{ paymentLabel(myParticipation.paymentStatus) }}
-            </span>
-            @if (myParticipation.rejectionReason) {
-              <span class="text-danger small"><i class="bi bi-exclamation-circle me-1"></i>{{ myParticipation.rejectionReason }}</span>
-            }
-            @if (myParticipation.paymentStatus !== 'Confirmed') {
-              <label class="btn btn-outline-primary btn-sm mb-0" [class.disabled]="uploading">
-                @if (uploading) { <span class="spinner-border spinner-border-sm me-1"></span> }
-                <i class="bi bi-upload me-1"></i>Enviar Comprovante
-                <input type="file" hidden accept="image/*,.pdf" (change)="onFileSelected($event, myParticipation.id)">
-              </label>
-            }
-            @if (myParticipation.hasPaymentProof) {
-              <a [href]="'https://localhost:7131' + myParticipation.paymentProofUrl" target="_blank" class="btn btn-outline-secondary btn-sm">
-                <i class="bi bi-eye me-1"></i>Ver Comprovante
-              </a>
-            }
-          </div>
-        </div>
-      </div>
-    }
 
     <div class="row g-4">
       <!-- Confirmed List -->
@@ -107,29 +58,10 @@
                 <li class="list-group-item d-flex align-items-center gap-2 py-2">
                   <span class="badge bg-secondary rounded-pill" style="min-width:28px">{{ p.position }}</span>
                   <span class="flex-fill fw-medium">{{ p.userName }}</span>
-                  <span class="badge bg-{{ paymentBadge(p.paymentStatus) }} small">
-                    {{ paymentLabel(p.paymentStatus) }}
-                  </span>
                   @if (auth.isAdmin()) {
-                    <div class="d-flex gap-1">
-                      @if (p.hasPaymentProof) {
-                        <a [href]="'https://localhost:7131' + p.paymentProofUrl" target="_blank"
-                           class="btn btn-outline-secondary btn-sm" title="Ver comprovante">
-                          <i class="bi bi-receipt"></i>
-                        </a>
-                        @if (p.paymentStatus === 'Submitted') {
-                          <button class="btn btn-success btn-sm" (click)="reviewPayment(p.id, true)" title="Confirmar pagamento">
-                            <i class="bi bi-check"></i>
-                          </button>
-                          <button class="btn btn-danger btn-sm" (click)="reviewPayment(p.id, false, 'Comprovante inválido')" title="Rejeitar">
-                            <i class="bi bi-x"></i>
-                          </button>
-                        }
-                      }
-                      <button class="btn btn-outline-danger btn-sm" (click)="remove(p)" title="Remover">
-                        <i class="bi bi-trash"></i>
-                      </button>
-                    </div>
+                    <button class="btn btn-outline-danger btn-sm" (click)="remove(p)" title="Remover">
+                      <i class="bi bi-trash"></i>
+                    </button>
                   }
                 </li>
               }

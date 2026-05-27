@@ -7,6 +7,7 @@
     <div class="text-center py-5 text-muted">
       <i class="bi bi-calendar-x" style="font-size: 3rem;"></i>
       <p class="mt-3">Você ainda não participou de nenhum jogo.</p>
+      <p class="small">Cadastre-se em um jogo na <a routerLink="/inscricao">página de inscrições</a> usando o mesmo CPF da sua conta.</p>
     </div>
   } @else {
     <div class="card shadow-sm">
@@ -17,10 +18,9 @@
               <tr>
                 <th>Data</th>
                 <th>Local</th>
+                <th>Horário</th>
                 <th>Status</th>
-                <th>Pagamento</th>
-                <th>Time</th>
-                <th>Comprovante</th>
+                <th>Inscrito em</th>
               </tr>
             </thead>
             <tbody>
@@ -28,35 +28,13 @@
                 <tr>
                   <td>
                     <div class="fw-medium">{{ item.gameDate | date:'dd/MM/yyyy' }}</div>
-                    <div class="text-muted small">{{ item.gameTime }}</div>
                   </td>
                   <td>{{ item.location }}</td>
+                  <td>{{ item.gameTime }}</td>
                   <td>
                     <span class="badge bg-{{ statusBadge(item.status) }}">{{ item.statusLabel }}</span>
                   </td>
-                  <td>
-                    <span class="badge bg-{{ paymentBadge(item.paymentStatus) }}">{{ item.paymentStatusLabel }}</span>
-                    @if (item.rejectionReason) {
-                      <div class="text-danger small mt-1">{{ item.rejectionReason }}</div>
-                    }
-                  </td>
-                  <td>
-                    @if (item.teamNumber) {
-                      <span class="badge bg-primary">Time {{ item.teamNumber }}</span>
-                    } @else {
-                      <span class="text-muted">—</span>
-                    }
-                  </td>
-                  <td>
-                    @if (item.hasProof && item.proofUrl) {
-                      <a [href]="'https://localhost:7131' + item.proofUrl" target="_blank"
-                         class="btn btn-outline-secondary btn-sm">
-                        <i class="bi bi-receipt me-1"></i>Ver
-                      </a>
-                    } @else {
-                      <span class="text-muted small">Não enviado</span>
-                    }
-                  </td>
+                  <td class="text-muted small">{{ item.signedUpAt | date:'dd/MM/yyyy HH:mm' }}</td>
                 </tr>
               }
             </tbody>

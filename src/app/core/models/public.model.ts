@@ -15,6 +15,8 @@ export interface PublicGame {
   maxPlayers: number;
   status: string;
   confirmedCount: number;
+  waitingCount: number;
   acceptingSignups: boolean;
   confirmed: PublicSignupItem[];
+  waiting: PublicSignupItem[];
 }

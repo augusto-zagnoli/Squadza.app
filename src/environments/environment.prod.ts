@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://SUA_URL_DE_PRODUCAO/api',
-  hubUrl: 'https://SUA_URL_DE_PRODUCAO/hubs/game'
+  apiUrl: 'https://squadza.com.br:5001/api',
+  hubUrl: 'https://squadza.com.br:5001/hubs/game'
 };

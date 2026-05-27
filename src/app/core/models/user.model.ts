@@ -4,6 +4,7 @@ export interface User {
   email: string;
   phone: string;
   isAdmin: boolean;
+  cpfNormalized?: string | null;
   createdAt?: string;
   totalGames?: number;
 }
@@ -17,6 +18,7 @@ export interface RegisterDto {
   name: string;
   phone: string;
   email: string;
+  cpf: string;
   password: string;
 }
 
@@ -33,11 +35,5 @@ export interface HistoryItem {
   location: string;
   status: string;
   statusLabel: string;
-  paymentStatus: string;
-  paymentStatusLabel: string;
-  hasProof: boolean;
-  proofUrl: string | null;
-  rejectionReason: string | null;
-  teamNumber: number | null;
-  joinedAt: string;
+  signedUpAt: string;
 }

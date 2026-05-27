@@ -20,6 +20,13 @@
                 <input type="text" class="form-control" [(ngModel)]="name" name="name" required>
               </div>
               <div class="mb-3">
+                <label class="form-label">CPF</label>
+                <input type="text" class="form-control" [value]="cpf"
+                       (input)="formatCpf($event)" name="cpf"
+                       placeholder="000.000.000-00" required>
+                <div class="form-text">Usado para vincular seu histórico de jogos.</div>
+              </div>
+              <div class="mb-3">
                 <label class="form-label">Telefone (WhatsApp)</label>
                 <input type="tel" class="form-control" [(ngModel)]="phone" name="phone" placeholder="(11) 99999-9999" required>
               </div>

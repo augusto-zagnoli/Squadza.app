@@ -69,21 +69,24 @@ export class PublicGameComponent implements OnInit, OnDestroy {
     });
   }
 
-  get isSignedUp(): boolean {
-    const cpf = this.normalizedStoredCpf;
-    return !!this.game?.confirmed.some(() => cpf === localStorage.getItem(CPF_KEY)?.replace(/\D/g, ''));
+  get myConfirmedEntry() {
+    const storedName = localStorage.getItem(NAME_KEY);
+    if (!storedName || !this.cpf) return null;
+    return this.game?.confirmed.find(p => p.name === storedName) ?? null;
   }
 
-  get myEntry() {
-    const storedCpf = localStorage.getItem(CPF_KEY)?.replace(/\D/g, '');
-    return this.game?.confirmed.find(p =>
-      localStorage.getItem(CPF_KEY) &&
-      p.name === localStorage.getItem(NAME_KEY)
-    ) ?? null;
+  get myWaitingEntry() {
+    const storedName = localStorage.getItem(NAME_KEY);
+    if (!storedName || !this.cpf) return null;
+    return this.game?.waiting.find(p => p.name === storedName) ?? null;
   }
 
-  get normalizedStoredCpf() {
-    return localStorage.getItem(CPF_KEY)?.replace(/\D/g, '') ?? '';
+  get isMySelf(): boolean {
+    return !!this.myConfirmedEntry;
+  }
+
+  get isMySelfWaiting(): boolean {
+    return !!this.myWaitingEntry;
   }
 
   signup() {
@@ -101,7 +104,10 @@ export class PublicGameComponent implements OnInit, OnDestroy {
         this.game = game;
         localStorage.setItem(NAME_KEY, this.name.trim());
         localStorage.setItem(CPF_KEY, this.cpf);
-        this.successMsg = 'Inscrição realizada com sucesso!';
+        const isWaiting = game.waiting.some(p => p.name === this.name.trim());
+        this.successMsg = isWaiting
+          ? 'Você entrou na lista de espera!'
+          : 'Inscrição realizada com sucesso!';
         this.loading = false;
       },
       error: err => {
@@ -142,13 +148,6 @@ export class PublicGameComponent implements OnInit, OnDestroy {
     return Math.max(0, (this.game?.maxPlayers ?? 0) - (this.game?.confirmedCount ?? 0));
   }
 
-  get isMySelf(): boolean {
-    const storedCpf = localStorage.getItem(CPF_KEY)?.replace(/\D/g, '') ?? '';
-    const storedName = localStorage.getItem(NAME_KEY) ?? '';
-    return !!storedCpf && !!storedName &&
-      this.game?.confirmed.some(p => p.name === storedName) === true;
-  }
-
   private async startSignalR(gameId: number) {
     this.connection = new signalR.HubConnectionBuilder()
       .withUrl(HUB_URL)
@@ -168,7 +167,7 @@ export class PublicGameComponent implements OnInit, OnDestroy {
   }
 
   statusBadge(status: string): string {
-    return { Open: 'success', Full: 'danger', Closed: 'secondary', Cancelled: 'secondary' }[status] || 'secondary';
+    return { Open: 'success', Full: 'warning', Closed: 'secondary', Cancelled: 'secondary' }[status] || 'secondary';
   }
 
   statusLabel(status: string): string {

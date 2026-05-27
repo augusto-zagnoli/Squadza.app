@@ -34,9 +34,9 @@ export class GameService {
     return this.http.delete<{ message: string }>(`${API_URL}/participants/leave/${gameId}`);
   }
 
-  removeParticipant(userId: number, gameId: number) {
+  removeParticipant(signupId: number, gameId: number) {
     return this.http.delete<{ message: string }>(
-      `${API_URL}/participants/${userId}/remove?gameId=${gameId}`
+      `${API_URL}/participants/${signupId}/remove?gameId=${gameId}`
     );
   }
 
