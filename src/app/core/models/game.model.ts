@@ -33,6 +33,8 @@ export interface Game {
   gameDate: string;
   gameTime: string;
   location: string;
+  courtId?: number | null;
+  courtName?: string | null;
   pricePerPerson: number;
   maxPlayers: number;
   status: string;
@@ -52,7 +54,8 @@ export interface Game {
 export interface CreateGameDto {
   gameDate: string;
   gameTime: string;
-  location: string;
+  courtId?: number;
+  location?: string;
   pricePerPerson: number;
   maxPlayers: number;
 }

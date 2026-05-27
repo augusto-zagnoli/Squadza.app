@@ -45,5 +45,10 @@ export const routes: Routes = [
     canActivate: [adminGuard],
     loadComponent: () => import('./admin/create-game/create-game.component').then(m => m.CreateGameComponent)
   },
+  {
+    path: 'admin/courts',
+    canActivate: [adminGuard],
+    loadComponent: () => import('./admin/courts/courts.component').then(m => m.CourtsComponent)
+  },
   { path: '**', redirectTo: '/games' }
 ];

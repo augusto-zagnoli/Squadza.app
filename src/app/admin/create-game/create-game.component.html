@@ -23,9 +23,26 @@
               <input type="time" class="form-control" [(ngModel)]="gameTime" name="gameTime" required>
             </div>
             <div class="mb-3">
-              <label class="form-label">Local</label>
-              <input type="text" class="form-control" [(ngModel)]="location" name="location"
-                     placeholder="Ex: Quadra da Escola Municipal" required>
+              <label class="form-label">Quadra</label>
+              @if (courtsLoading) {
+                <div class="form-control d-flex align-items-center gap-2 text-muted">
+                  <span class="spinner-border spinner-border-sm"></span> Carregando quadras...
+                </div>
+              } @else if (courts.length === 0) {
+                <div class="alert alert-warning py-2 mb-0">
+                  Nenhuma quadra ativa cadastrada.
+                  <a routerLink="/admin/courts" class="alert-link ms-1">Cadastrar quadra</a>
+                </div>
+              } @else {
+                <select class="form-select" [(ngModel)]="courtId" name="courtId" required>
+                  <option [ngValue]="null">Selecione uma quadra...</option>
+                  @for (court of courts; track court.id) {
+                    <option [ngValue]="court.id">
+                      {{ court.name }}{{ court.city ? ' — ' + court.city : '' }}
+                    </option>
+                  }
+                </select>
+              }
             </div>
             <div class="row g-3 mb-3">
               <div class="col">
@@ -37,7 +54,7 @@
                 <input type="number" class="form-control" [(ngModel)]="maxPlayers" name="maxPlayers" min="2" required>
               </div>
             </div>
-            <button type="submit" class="btn btn-primary w-100" [disabled]="loading">
+            <button type="submit" class="btn btn-primary w-100" [disabled]="loading || courtsLoading || courts.length === 0">
               @if (loading) { <span class="spinner-border spinner-border-sm me-2"></span> }
               Criar Jogo
             </button>

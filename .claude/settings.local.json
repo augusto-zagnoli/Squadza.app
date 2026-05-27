@@ -8,7 +8,9 @@
       "Bash(dotnet ef *)",
       "Bash(npm install *)",
       "Bash(npx ng *)",
-      "Bash(Select-String -Pattern \"Error\")"
+      "Bash(Select-String -Pattern \"Error\")",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Augusto Zagnoli\\\\Desktop\\\\Projects\\\\Augusto\\\\Squadza\\\\Squadza.app\\\\src\\\\app\" -Directory)",
+      "Bash(Select-Object -ExpandProperty Name)"
     ]
   }
 }
